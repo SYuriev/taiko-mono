@@ -1,0 +1,47 @@
+const { PolygonPOSBridge } = require("@maticnetwork/maticjs");
+
+// Настройки моста
+const fromNetwork = "testnet"; // Может быть 'mainnet' или 'testnet'
+const toNetwork = "mainnet"; // Может быть 'mainnet' или 'testnet'
+const version = "v1"; // Версия моста
+
+// Ключи аккаунта
+const privateKey = "PRIVATE_KEY"; // Приватный ключ аккаунта, имеющего эфир на Ethereum
+const maticPrivateKey = "MATIC_PRIVATE_KEY"; // Приватный ключ аккаунта, имеющего MATIC на Polygon
+
+// Инициализация моста
+const maticPOSClient = new PolygonPOSBridge({
+  network: fromNetwork,
+  version: version,
+  parentProvider: new HDWalletProvider(privateKey, "https://mainnet.infura.io/v3/your_infura_key"),
+  maticProvider: new HDWalletProvider(maticPrivateKey, "https://rpc-mumbai.matic.today"),
+});
+
+async function main() {
+  // Адрес эфира для перевода
+  const fromAddress = "0x..."; // Ethereum address
+  // Адрес Polygon для получения переведенного MATIC
+  const toAddress = "0x..."; // Polygon address
+
+  // Количество переводимого эфира
+  const amount = "1000000000000000000"; // 1 ETH
+
+  // Перевод эфира с Ethereum на Polygon
+  const receipt = await maticPOSClient.transferERC20Tokens(
+    fromAddress,
+    toAddress,
+    amount,
+    {
+      from: fromAddress,
+      parent: true, // укажите true, если переводите эфир с Ethereum на Polygon
+      onApproval: (txHash) => {
+        console.log(`Approval transaction hash: ${txHash}`);
+      },
+    }
+  );
+
+  console.log("Transfer initiated successfully");
+  console.log(receipt);
+}
+
+main();
